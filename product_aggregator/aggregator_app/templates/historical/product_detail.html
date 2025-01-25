@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.product_name }} - Product Details {% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.product_name }} - Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg custom-shadow p-6 mb-8">
+            <h1 class="text-3xl font-bold mb-6 text-gray-800">{{ product.product_name }}</h1>
+            <div class="flex flex-col md:flex-row">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="w-full h-auto rounded-lg custom-shadow">
+                </div>
+                <div class="flex-1 md:ml-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-lg font-semibold text-blue-800">Price</p>
+                            <p class="text-2xl font-bold text-blue-600">{{ product.product_price }}</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <p class="text-lg font-semibold text-green-800">Rating</p>
+                            <p class="text-2xl font-bold text-green-600">{{ product.rating }} / 5</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <p class="text-lg font-semibold text-purple-800">Number of Ratings</p>
+                            <p class="text-2xl font-bold text-purple-600">{{ product.number_of_ratings }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                        <p class="text-lg font-semibold text-gray-800 mb-2">Specifications</p>
+                        <p class="text-gray-600">{{ product.specifications }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg custom-shadow p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Historical Data</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ratingChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-8 chart-container">
+                <canvas id="combinedChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg custom-shadow p-6 overflow-x-auto">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Historical Data Table</h2>
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-3 text-left font-semibold">Date</th>
+                        <th class="p-3 text-left font-semibold">Price</th>
+                        <th class="p-3 text-left font-semibold">Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in historical_records %}
+                    <tr class="border-b hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            {% if record.date == "Current" %}
+                                <span class="font-semibold text-blue-600">Current</span>
+                            {% else %}
+                                {{ record.date }}
+                            {% endif %}
+                        </td>
+                        <td class="p-3">{{ record.price }}</td>
+                        <td class="p-3">{{ record.rating }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="p-3 text-center text-gray-500">No historical data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    const historicalData = JSON.parse('{{ historical_data_json|escapejs }}');
+
+    // Extract data for charts
+    const labels = historicalData.map(data => data.date);
+    const prices = historicalData.map(data => data.price);
+    const ratings = historicalData.map(data => data.rating);
+
+    // Utility function to create gradient
+    function createGradient(ctx, colorStart, colorEnd) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
+        return gradient;
+    }
+
+    // Price Chart
+    const priceCtx = document.getElementById("priceChart").getContext('2d');
+    const priceGradient = createGradient(priceCtx, 'rgba(66, 153, 225, 0.6)', 'rgba(66, 153, 225, 0.1)');
+
+    new Chart(priceCtx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Price Over Time",
+                data: prices,
+                borderColor: "rgba(66, 153, 225, 1)",
+                backgroundColor: priceGradient,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Historical Prices Including Current Price",
+                    font: { size: 16, weight: 'bold' }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: { font: { size: 12 } }
+                },
+                x: {
+                    ticks: { font: { size: 12 } }
+                }
+            }
+        }
+    });
+
+    // Rating Chart
+    const ratingCtx = document.getElementById("ratingChart").getContext('2d');
+    const ratingGradient = createGradient(ratingCtx, 'rgba(72, 187, 120, 0.6)', 'rgba(72, 187, 120, 0.1)');
+
+    new Chart(ratingCtx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Rating Over Time",
+                data: ratings,
+                borderColor: "rgba(72, 187, 120, 1)",
+                backgroundColor: ratingGradient,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Historical Ratings Including Current Rating",
+                    font: { size: 16, weight: 'bold' }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    max: 5,
+                    ticks: { font: { size: 12 } }
+                },
+                x: {
+                    ticks: { font: { size: 12 } }
+                }
+            }
+        }
+    });
+
+    // Combined Chart
+    const combinedCtx = document.getElementById("combinedChart").getContext('2d');
+    new Chart(combinedCtx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Price",
+                    data: prices,
+                    borderColor: "rgba(66, 153, 225, 1)",
+                    backgroundColor: "rgba(66, 153, 225, 0.2)",
+                    tension: 0.3,
+                    yAxisID: 'y-price'
+                },
+                {
+                    label: "Rating",
+                    data: ratings,
+                    borderColor: "rgba(72, 187, 120, 1)",
+                    backgroundColor: "rgba(72, 187, 120, 0.2)",
+                    tension: 0.3,
+                    yAxisID: 'y-rating'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Price and Rating Over Time",
+                    font: { size: 16, weight: 'bold' }
+                }
+            },
+            scales: {
+                'y-price': {
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Price'
+                    }
+                },
+                'y-rating': {
+                    type: 'linear',
+                    position: 'right',
+                    beginAtZero: false,
+                    max: 5,
+                    title: {
+                        display: true,
+                        text: 'Rating'
+                    }
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html>
+
+
+{% endblock %}

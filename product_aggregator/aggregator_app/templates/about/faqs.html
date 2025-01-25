@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQs - Your Service Name{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Frequently Asked Questions</h1>
+        
+        <div class="mb-12">
+            <img id="randomImage" class="w-full h-64 object-cover rounded-xl shadow-lg" src="/placeholder.svg" alt="FAQ Hero Image">
+        </div>
+
+        <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+            <div class="p-8">
+                <div class="space-y-8">
+                    <div class="faq-item">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">What is Your Service Name?</h3>
+                        <p class="text-gray-600">Your Service Name is a cutting-edge platform designed to help businesses optimize their operations and increase productivity. We offer a suite of tools for project management, team collaboration, and data analysis.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">How do I get started?</h3>
+                        <p class="text-gray-600">Getting started is easy! Simply sign up for a free account on our website, and you'll have immediate access to our basic features. For more advanced functionality, you can upgrade to one of our premium plans at any time.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Is my data secure?</h3>
+                        <p class="text-gray-600">Absolutely. We take data security very seriously. All data is encrypted both in transit and at rest, and we use industry-standard security protocols to ensure your information is always protected.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Can I integrate Your Service Name with other tools?</h3>
+                        <p class="text-gray-600">Yes, we offer integrations with a wide range of popular business tools and platforms. Check our integrations page for a full list of supported services, or contact our support team for custom integration options.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">What kind of support do you offer?</h3>
+                        <p class="text-gray-600">We provide 24/7 customer support via email and live chat. Our premium plans also include priority support and dedicated account managers to ensure you get the most out of our service.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Is there a mobile app available?</h3>
+                        <p class="text-gray-600">Yes, we have mobile apps available for both iOS and Android devices. You can download them from the App Store or Google Play Store to access your account and manage your projects on the go.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 p-8">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Still have questions?</h3>
+                <p class="text-gray-600 mb-6">If you couldn't find the answer you were looking for, our support team is always here to help.</p>
+                <a href="#" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Contact Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const randomImage = document.getElementById('randomImage');
+            const imageUrl = `https://source.unsplash.com/random/1200x400?question,answer,faq`;
+            
+            randomImage.src = imageUrl;
+            
+            randomImage.addEventListener('load', function() {
+                randomImage.classList.add('loaded');
+            });
+
+            // FAQ Accordion functionality
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('h3');
+                const answer = item.querySelector('p');
+                
+                question.addEventListener('click', () => {
+                    answer.classList.toggle('hidden');
+                    question.classList.toggle('text-blue-600');
+                });
+
+                // Initially hide answers
+                answer.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

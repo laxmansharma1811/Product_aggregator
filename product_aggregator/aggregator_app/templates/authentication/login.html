@@ -16,16 +16,27 @@
             50% { transform: scale(1.05); }
         }
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .float { animation: float 6s ease-in-out infinite; }
         .pulse { animation: pulse 2s ease-in-out infinite; }
         .slide-in { animation: slideIn 0.5s ease-out; }
     </style>
 </head>
-{% if messages %}
-        <div class="mb-8">
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden">
+    <!-- Background Floating Circles -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-20 h-20 bg-yellow-300 rounded-full opacity-50 float"></div>
+        <div class="absolute top-3/4 right-1/4 w-32 h-32 bg-pink-300 rounded-full opacity-50 float" style="animation-delay: -2s;"></div>
+        <div class="absolute bottom-1/4 left-1/2 w-24 h-24 bg-green-300 rounded-full opacity-50 float" style="animation-delay: -4s;"></div>
+    </div>
+
+    <!-- Login Form Card -->
+    <div class="w-full max-w-md p-8 m-4 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-lg shadow-2xl pulse">
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="mb-6" id="message-container">
             {% for message in messages %}
             <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
                 {{ message }}
@@ -34,34 +45,62 @@
         </div>
         {% endif %}
 
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden">
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute top-1/4 left-1/4 w-20 h-20 bg-yellow-300 rounded-full opacity-50 float"></div>
-        <div class="absolute top-3/4 right-1/4 w-32 h-32 bg-pink-300 rounded-full opacity-50 float" style="animation-delay: -2s;"></div>
-        <div class="absolute bottom-1/4 left-1/2 w-24 h-24 bg-green-300 rounded-full opacity-50 float" style="animation-delay: -4s;"></div>
-    </div>
-    
-
-    <div class="w-full max-w-md p-8 m-4 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-lg shadow-2xl pulse">
-        
+        <!-- Login Form -->
         <h2 class="mb-6 text-4xl font-bold text-center text-white">Login</h2>
         <form method="post" class="space-y-6">
             {% csrf_token %}
+            <!-- Username or Email -->
             <div class="slide-in" style="animation-delay: 0.1s;">
-                <input type="text" name="username" placeholder="Username" required
+                <input 
+                    type="text" 
+                    name="username" 
+                    placeholder="Username or Email" 
+                    required
                     class="w-full px-4 py-3 bg-white bg-opacity-30 border-2 border-white border-opacity-50 rounded-lg focus:outline-none focus:border-opacity-100 transition duration-300 text-white placeholder-white placeholder-opacity-75">
             </div>
+            <!-- Password -->
             <div class="slide-in" style="animation-delay: 0.2s;">
-                <input type="password" name="password" placeholder="Password" required
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Password" 
+                    required
                     class="w-full px-4 py-3 bg-white bg-opacity-30 border-2 border-white border-opacity-50 rounded-lg focus:outline-none focus:border-opacity-100 transition duration-300 text-white placeholder-white placeholder-opacity-75">
             </div>
-            <button type="submit" class="slide-in w-full py-3 px-4 bg-white text-purple-600 font-semibold rounded-lg shadow-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105" style="animation-delay: 0.3s;">
+            <!-- Login Button -->
+            <button 
+                type="submit" 
+                class="slide-in w-full py-3 px-4 bg-white text-purple-600 font-semibold rounded-lg shadow-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105" 
+                style="animation-delay: 0.3s;">
                 Login
             </button>
         </form>
-        <div class="mt-6 text-center slide-in" style="animation-delay: 0.4s;">
-            <a href="/register" class="text-white hover:text-purple-200 transition duration-300">Don't have an account? Register</a>
+        <!-- Links -->
+        <div class="mt-6 text-center space-y-2">
+            <div class="slide-in" style="animation-delay: 0.4s;">
+                <a href="{% url 'password_reset' %}" class="text-white hover:text-purple-200 transition duration-300">
+                    Forgot your password?
+                </a>
+            </div>
+            <div class="slide-in" style="animation-delay: 0.5s;">
+                <a href="{% url 'register' %}" class="text-white hover:text-purple-200 transition duration-300">
+                    Don't have an account? Register
+                </a>
+            </div>
         </div>
     </div>
+
+
+    <script>
+        window.onload = function() {
+            // Check if the message container exists
+            var messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                setTimeout(function() {
+                    messageContainer.style.display = 'none';
+                }, 3000); // Hide the message after 3 seconds
+            }
+        };
+    </script>
 </body>
 </html>

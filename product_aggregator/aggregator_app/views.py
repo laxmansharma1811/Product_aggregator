@@ -2,28 +2,42 @@ import json
 import subprocess
 import sys
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+import matplotlib
+from .scraper.hukut import scrape_products
 from .models import *
 from django.db.models import Q
 import matplotlib.pyplot as plt
 import io
 import base64
 from django.views.generic import TemplateView
-from .scraper.utils import DarazScraper
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import csv
 from pathlib import Path
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth import update_session_auth_hash
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from .scraper.hukut import scrape_products
+from .scraper.utils import DarazScraper
+import base64
+import io
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from .models import Product
+import numpy as np
 
 # Create your views here.
-
 
 def clean_price(price_str):
     return float(price_str.replace('Rs.', '').replace('₹', '').replace(',', '').strip())
@@ -92,6 +106,15 @@ def home(request):
     
     return render(request, 'dashboard/home.html', context)
 
+def about_us(request):
+    return render(request, 'about/about_us.html')
+
+def how_it_works(request):
+    return render(request, 'about/how_it_works.html')
+
+def faqs(request):
+    return render(request, 'about/faqs.html')
+
 
 
 @login_required(login_url='login')
@@ -152,20 +175,26 @@ def comparison(request):
 
 
 
+
 @login_required(login_url='login')
 def analysis(request):
+    # Fetch selected product IDs from the session
     selected_product_ids = request.session.get('selected_products', [])
     products = Product.objects.filter(id__in=selected_product_ids)
 
-    # Calculate price differences
+    if not products:
+        messages.error(request, "No products selected for analysis.")
+        return redirect('home')
+
+    # Calculate price and rating differences
     price_differences = []
+    rating_differences = []
     for i in range(len(products)):
         for j in range(i + 1, len(products)):
-            diff = abs(clean_price(products[i].product_price) - clean_price(products[j].product_price))
-            price_differences.append({
-                'products': f"{products[i].product_name} vs {products[j].product_name}",
-                'difference': diff
-            })
+            price_diff = abs(clean_price(products[i].product_price) - clean_price(products[j].product_price))
+            rating_diff = abs(products[i].rating - products[j].rating)
+            price_differences.append({'products': f"{products[i].product_name} vs {products[j].product_name}", 'difference': price_diff})
+            rating_differences.append({'products': f"{products[i].product_name} vs {products[j].product_name}", 'difference': rating_diff})
 
     # Generate a price comparison bar chart
     product_names = [p.product_name for p in products]
@@ -178,20 +207,68 @@ def analysis(request):
     plt.title("Product Price Comparison")
     plt.tight_layout()
 
-    # Save the chart as a base64-encoded image
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
-    chart_url = base64.b64encode(buf.getvalue()).decode('utf-8')
+    price_chart_url = base64.b64encode(buf.getvalue()).decode('utf-8')
     buf.close()
+
+    # Generate a rating comparison bar chart
+    product_ratings = [p.rating for p in products]
+
+    plt.figure(figsize=(8, 6))
+    plt.bar(product_names, product_ratings, color='lightgreen')
+    plt.xlabel("Products")
+    plt.ylabel("Rating")
+    plt.title("Product Rating Comparison")
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    rating_chart_url = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+
+    # Calculate additional statistics
+    avg_price = sum(product_prices) / len(product_prices) if product_prices else 0
+    avg_rating = sum(product_ratings) / len(product_ratings) if product_ratings else 0
+    max_price = max(product_prices, default=0)
+    min_price = min(product_prices, default=0)
+    max_rating = max(product_ratings, default=0)
+    min_rating = min(product_ratings, default=0)
+
+    # Calculate correlation between price and rating
+    correlation = (
+        round(np.corrcoef(product_prices, product_ratings)[0, 1], 2) 
+        if len(products) > 1 else 0
+    )
+
+    # Find best value for money
+    price_rating_ratios = [
+        {'product': p.product_name, 'ratio': clean_price(p.product_price) / p.rating}
+        for p in products if p.rating > 0
+    ]
+    best_value_product = min(price_rating_ratios, key=lambda x: x['ratio'], default=None)
 
     context = {
         'products': products,
         'price_differences': price_differences,
-        'chart_url': f"data:image/png;base64,{chart_url}",
+        'rating_differences': rating_differences,
+        'price_chart_url': f"data:image/png;base64,{price_chart_url}",
+        'rating_chart_url': f"data:image/png;base64,{rating_chart_url}",
+        'avg_price': avg_price,
+        'avg_rating': avg_rating,
+        'max_price': max_price,
+        'min_price': min_price,
+        'max_rating': max_rating,
+        'min_rating': min_rating,
+        'correlation': correlation,
+        'best_value_product': best_value_product,
     }
 
     return render(request, 'comparison/analysis.html', context)
+
+
 
 
 
@@ -232,7 +309,7 @@ def search_products(request):
         return JsonResponse({'products': results})
     return render(request, "live/hukut_live.html")
 
-# ------------------------------------------------------------------------------------------------------------
+
 
 @login_required(login_url='login')
 @csrf_exempt
@@ -312,13 +389,14 @@ def save_to_csv(request):
 
 
 
-
 def register(request):
     if request.method == "POST":
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
+        first_name = request.POST.get('first_name')  
+        last_name = request.POST.get('last_name')  
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match!")
@@ -333,8 +411,14 @@ def register(request):
             return redirect('register')
 
         user = User.objects.create_user(username=username, email=email, password=password)
-        login(request, user) 
-        return redirect('home')
+        user.first_name = first_name  
+        user.last_name = last_name    
+        user.save()
+
+         # Create user profile
+        user_profile = UserProfile.objects.create(user=user, first_name=first_name, last_name=last_name)
+        login(request, user)
+        return redirect('login')
 
     return render(request, 'authentication/register.html')
 
@@ -342,15 +426,22 @@ def register(request):
 
 def login_view(request):
     if request.method == "POST":
-        username = request.POST.get('username')
+        identifier = request.POST.get('username')  # Can be either username or email
         password = request.POST.get('password')
+
+        # Check if identifier is an email
+        if User.objects.filter(email=identifier).exists():
+            username = User.objects.get(email=identifier).username
+        else:
+            username = identifier
+
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, "Invalid username or password!")
+            messages.error(request, "Invalid username/email or password!")
             return redirect('login')
 
     return render(request, 'authentication/login.html')
@@ -366,31 +457,112 @@ def logout_view(request):
 
 
 
-@login_required(login_url='login')
+
+@login_required
 def profile_view(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    return render(request, 'profile/profile.html', {'profile': profile})
-
-
-
-@login_required(login_url='login')
-def edit_profile(request):
-    profile = request.user.profile
+    # Get the user's profile, or create it if it doesn't exist
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        email = request.POST.get('email')
-        address = request.POST.get('address')
+        # Manually handle the form data
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         phone_number = request.POST.get('phone_number')
+        profile_picture = request.FILES.get('profile_picture')
 
-        # Update the profile with the new data
-        profile.full_name = full_name
-        profile.email = email
-        profile.address = address
-        profile.phone_number = phone_number
-        profile.save()
+        # Update the user profile with the new data
+        if first_name:
+            user_profile.first_name = first_name
+        if last_name:
+            user_profile.last_name = last_name
+        if phone_number:
+            user_profile.phone_number = phone_number
+        if profile_picture:
+            user_profile.profile_picture = profile_picture
 
-        # Redirect to the profile page after saving
-        return redirect('profile')
+        # Save the profile
+        user_profile.save()
 
-    return render(request, 'profile/edit_profile.html', {'profile': profile})
+        return redirect('profile-view')  # Redirect to the profile page after saving
+
+    return render(request, 'profile/profile.html', {'user_profile': user_profile})
+
+
+
+@login_required(login_url='login')
+def product_historical_data(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    # Fetch historical data
+    historical_records = HistoricalData.objects.filter(product=product).order_by('date')
+
+    historical_data = [
+        {
+            "date": record.date.strftime("%Y-%m-%d"),
+            "price": record.price,
+            "rating": record.rating,
+        }
+        for record in historical_records
+    ]
+
+    # Append current data
+    current_data = {
+        "date": "Current",  # Label as "Current"
+        "price": float(product.product_price.replace(",", "").replace("Rs. ", "")),
+        "rating": product.rating,
+    }
+    historical_data.append(current_data)
+
+    context = {
+        "product": product,
+        "historical_records": list(historical_records) + [current_data],  # For the table
+        "historical_data_json": json.dumps(historical_data),  # Pass JSON to the template
+    }
+    return render(request, "historical/product_detail.html", context)
+
+
+
+
+
+
+from django.contrib.auth.views import PasswordResetView
+class CustomPasswordResetView(PasswordResetView):
+    email_template_name = 'registration/password_reset_email.html'
+
+    def get_context_data(self, kwargs):
+        context = super().get_context_data(kwargs)
+        context['protocol'] = self.request.scheme  # 'http' or 'https'
+        context['domain'] = self.request.get_host()  # Domain name (e.g., example.com)
+        # Ensure uidb64 and token are passed to the context
+        context['uidb64'] = kwargs.get('uidb64', '')
+        context['token'] = kwargs.get('token', '')
+        return context
+
+
+
+
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def change_password(request):
+    if request.method == 'GET':
+        return render(request, 'settings/change_password.html')
+    
+    old_password = request.POST.get('old_password')
+    new_password = request.POST.get('new_password')
+    
+    if not request.user.check_password(old_password):
+        return JsonResponse({'success': False, 'message': 'Old password is incorrect.'}, status=400)
+    
+    try:
+        validate_password(new_password, request.user)
+    except ValidationError as e:
+        return JsonResponse({'success': False, 'message': ' '.join(e.messages)}, status=400)
+    
+    request.user.set_password(new_password)
+    request.user.save()
+    update_session_auth_hash(request, request.user)
+    
+    return JsonResponse({'success': True, 'message': 'Password changed successfully.'})
+

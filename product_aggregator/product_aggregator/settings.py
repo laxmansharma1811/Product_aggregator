@@ -82,16 +82,33 @@ WSGI_APPLICATION = 'product_aggregator.wsgi.application'
 #     }
 # }
 
+# Add these settings to your settings.py file
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'laxman.sharma1811@gmail.com'
+EMAIL_HOST_PASSWORD = 'ubeh gnxk jhiq zhsj'
+
+
+
+# DATABASES = {
+# 'default': {
+# 'ENGINE': 'django.db.backends.postgresql',
+# 'NAME': 'product_aggregator',
+# 'USER': 'postgres',
+# 'PASSWORD': 'admin',
+# 'HOST': 'localhost',
+# 'PORT': '5432', # default PostgreSQL port
+# }
+# }
+
 
 DATABASES = {
-'default': {
-'ENGINE': 'django.db.backends.postgresql',
-'NAME': 'product_aggregator',
-'USER': 'postgres',
-'PASSWORD': 'admin',
-'HOST': 'localhost',
-'PORT': '5432', # default PostgreSQL port
-}
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "mydatabase",
+    }
 }
 
 # Password validation
@@ -134,3 +151,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

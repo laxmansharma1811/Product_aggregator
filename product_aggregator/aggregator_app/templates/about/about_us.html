@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - Innovate Solutions{% endblock %}
+
+{% block content %}
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">About Innovate Solutions</h1>
+        
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="md:flex">
+                <div class="md:flex-shrink-0">
+                    <img id="randomImage" class="h-48 w-full object-cover md:w-48" src="/placeholder.svg" alt="Innovate Solutions Team">
+                </div>
+                <div class="p-8">
+                    <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Our Mission</div>
+                    <p class="mt-2 text-gray-600">At Innovate Solutions, we're passionate about leveraging technology to solve complex business challenges. Our team of experts is dedicated to delivering cutting-edge solutions that drive growth and efficiency for our clients.</p>
+                    
+                    <div class="mt-4 flex items-center">
+                        <svg class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="ml-2 text-gray-700">10+ years of industry experience</span>
+                    </div>
+                    
+                    <div class="mt-2 flex items-center">
+                        <svg class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                        </svg>
+                        <span class="ml-2 text-gray-700">200+ successful projects delivered</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 py-6 bg-gray-50">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Our Expertise</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded shadow">
+                        <h3 class="font-semibold text-indigo-600">Web Development</h3>
+                        <p class="text-gray-600 mt-2">Custom web applications tailored to your business needs.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow">
+                        <h3 class="font-semibold text-indigo-600">Mobile Solutions</h3>
+                        <p class="text-gray-600 mt-2">Innovative mobile apps for iOS and Android platforms.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow">
+                        <h3 class="font-semibold text-indigo-600">Cloud Services</h3>
+                        <p class="text-gray-600 mt-2">Scalable and secure cloud infrastructure solutions.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow">
+                        <h3 class="font-semibold text-indigo-600">Data Analytics</h3>
+                        <p class="text-gray-600 mt-2">Advanced data analysis and visualization tools.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 py-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Our Values</h2>
+                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                    <li>Innovation: We constantly push the boundaries of what's possible.</li>
+                    <li>Quality: We deliver excellence in every project we undertake.</li>
+                    <li>Collaboration: We believe in the power of teamwork and partnership.</li>
+                    <li>Integrity: We uphold the highest standards of honesty and transparency.</li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const randomImage = document.getElementById('randomImage');
+            const imageUrl = `https://source.unsplash.com/random/800x600?technology`;
+            
+            randomImage.src = imageUrl;
+            
+            randomImage.addEventListener('load', function() {
+                randomImage.classList.add('loaded');
+            });
+        });
+    </script>
+
+{% endblock %}

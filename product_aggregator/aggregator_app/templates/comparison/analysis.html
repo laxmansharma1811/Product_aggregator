@@ -1,52 +1,212 @@
 {% extends 'base.html' %}
-{% block title %}Analysis{% endblock %}
-
 
 {% block content %}
-<body class="bg-gray-50 font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <h2 class="text-4xl font-bold mb-8 text-center text-primary-800">Analysis</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-12 max-w-7xl">
+        <h1 class="text-4xl font-bold mb-12 text-center text-indigo-800">Product Analysis</h1>
 
-        <!-- Price Differences Table -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-            <div class="p-6">
-                <h3 class="text-2xl font-semibold mb-4 text-primary-700">Price Differences</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full table-auto">
-                        <thead>
-                            <tr class="bg-primary-100">
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-primary-800">Comparison</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-primary-800">Price Difference (Rs.)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for diff in price_differences %}
-                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ diff.products }}</td>
-                                <td class="px-4 py-3 text-sm font-semibold text-primary-600">{{ diff.difference }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <!-- Price and Rating Differences Tables -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
+                <div class="p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Price Differences</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-indigo-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-indigo-800 uppercase tracking-wider">Products</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-indigo-800 uppercase tracking-wider">Price Difference (Rs.)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for diff in price_differences %}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ diff.products }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ diff.difference }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
+                <div class="p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Rating Differences</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-indigo-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-indigo-800 uppercase tracking-wider">Products</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-indigo-800 uppercase tracking-wider">Rating Difference</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for diff in rating_differences %}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ diff.products }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ diff.difference }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Chart Section -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <!-- Price and Rating Comparison Chart -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 transform hover:scale-105 transition duration-300">
             <div class="p-6">
-                <h3 class="text-2xl font-semibold mb-4 text-primary-700">Price Comparison Chart</h3>
-                <img src="{{ chart_url }}" alt="Price Comparison Chart" class="w-full h-auto rounded-lg border border-gray-200">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Price and Rating Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="priceRatingChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Back to Comparison Button -->
-        <div class="text-center">
-            <a href="{% url 'comparison' %}" class="inline-block bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-700 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
-                Back to Comparison
-            </a>
+        <!-- Price Distribution -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 transform hover:scale-105 transition duration-300">
+            <div class="p-6">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Price Distribution</h3>
+                <img src="{{ price_chart_url }}" alt="Price Distribution Chart" class="w-full h-auto rounded-lg border border-gray-200">
+            </div>
+        </div>
+
+        <!-- Price to Rating Ratio -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 transform hover:scale-105 transition duration-300">
+            <div class="p-6">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Price to Rating Ratio</h3>
+                <ul class="space-y-2">
+                    {% for ratio in price_rating_ratios %}
+                        <li class="bg-indigo-50 p-3 rounded-lg flex justify-between items-center">
+                            <span class="font-medium text-indigo-800">{{ ratio.product }}</span>
+                            <span class="text-indigo-600">Rs. {{ ratio.ratio|floatformat:2 }} per rating point</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Correlation and Best Value -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
+                <div class="p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Price-Rating Correlation</h3>
+                    <p class="text-lg text-indigo-800 font-medium">The correlation between price and rating is: <span class="text-2xl font-bold">{{ correlation|floatformat:2 }}</span></p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
+                <div class="p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Best Value for Money</h3>
+                    <p class="text-lg text-indigo-800 font-medium">The best value for money product is: <span class="text-2xl font-bold">{{ best_value_product.product }}</span> with Rs. {{ best_value_product.ratio|floatformat:2 }} per rating point.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Analysis -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 transform hover:scale-105 transition duration-300">
+            <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Summary Analysis</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="text-sm text-indigo-600 font-medium">Average Price</p>
+                    <p class="text-2xl font-bold text-indigo-800">Rs. {{ avg_price|floatformat:2 }}</p>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="text-sm text-indigo-600 font-medium">Average Rating</p>
+                    <p class="text-2xl font-bold text-indigo-800">{{ avg_rating|floatformat:2 }}</p>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="text-sm text-indigo-600 font-medium">Highest Price</p>
+                    <p class="text-2xl font-bold text-indigo-800">Rs. {{ max_price|floatformat:2 }}</p>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="text-sm text-indigo-600 font-medium">Lowest Price</p>
+                    <p class="text-2xl font-bold text-indigo-800">Rs. {{ min_price|floatformat:2 }}</p>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="text-sm text-indigo-600 font-medium">Highest Rating</p>
+                    <p class="text-2xl font-bold text-indigo-800">{{ max_rating|floatformat:2 }}</p>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="text-sm text-indigo-600 font-medium">Lowest Rating</p>
+                    <p class="text-2xl font-bold text-indigo-800">{{ min_rating|floatformat:2 }}</p>
+                </div>
+            </div>
         </div>
     </div>
-    {% endblock %}
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('priceRatingChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [{% for product in products %}'{{ product.name }}',{% endfor %}],
+                    datasets: [{
+                        label: 'Price (Rs.)',
+                        data: [{% for product in products %}{{ product.price }},{% endfor %}],
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        yAxisID: 'y-axis-1',
+                    }, {
+                        label: 'Rating',
+                        data: [{% for product in products %}{{ product.rating }},{% endfor %}],
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        yAxisID: 'y-axis-2',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    stacked: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            id: 'y-axis-1',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            id: 'y-axis-2',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        },
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
 

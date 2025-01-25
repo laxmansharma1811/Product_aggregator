@@ -61,7 +61,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="{% url 'home' %}" class="text-xl font-bold text-primary-600">Price Comparison</a>
+                    <a href="{% url 'home' %}" class="text-xl font-bold text-primary-600">Product Aggregator</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="{% url 'home' %}" class="text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md text-sm font-medium">Home</a>
@@ -75,8 +75,8 @@
                                     {{ user.username|first|upper }}
                                 </button>
                                 <div id="profile-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 hidden">
-                                    <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                    <a href="{% url 'profile-view' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+                                    <a href="{% url 'change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
                                     <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
                                 </div>
                             </div>
@@ -127,10 +127,10 @@
                 <div>
                     <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Quick Links</h3>
                     <ul class="space-y-4">
-                        <li><a href="#" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">Home</a></li>
-                        <li><a href="#" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">About Us</a></li>
-                        <li><a href="#" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">How It Works</a></li>
-                        <li><a href="#" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">FAQs</a></li>
+                        <li><a href="{% url 'home' %}" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">Home</a></li>
+                        <li><a href="{% url 'about_us' %}" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">About Us</a></li>
+                        <li><a href="{% url 'how_it_works' %}" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">How It Works</a></li>
+                        <li><a href="{% url 'faqs' %}" class="text-base text-gray-500 hover:text-primary-600 transition-colors duration-300">FAQs</a></li>
                     </ul>
                 </div>
                 <div>
@@ -152,7 +152,7 @@
                 </div>
             </div>
             <div class="mt-12 border-t border-gray-200 pt-8">
-                <p class="text-base text-gray-400 text-center">&copy; 2023 Price Comparison. All rights reserved.</p>
+                <p class="text-base text-gray-400 text-center">&copy; 2023 Product Aggregator. All rights reserved.</p>
             </div>
         </div>
     </footer>

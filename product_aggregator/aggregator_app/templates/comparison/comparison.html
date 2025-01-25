@@ -1,90 +1,265 @@
 {% extends 'base.html' %}
 {% block title %}Product Comparison{% endblock %}
-        
+
 {% block content %}
-        <div class="container mx-auto px-4 py-8">
-            <h2 class="text-3xl font-bold mb-8 text-center text-primary-600">Product Comparison</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Comparison</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-bg {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-4xl font-bold mb-8 text-center text-white gradient-bg py-4 rounded-lg shadow-lg">Product Comparison</h2>
         
-            <!-- Product Comparison Table -->
-            <div class="overflow-x-auto shadow-lg rounded-lg bg-white">
-                <table class="min-w-full table-auto">
+        <!-- Product Overview -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 card-bg">
+            <h3 class="text-2xl font-bold p-4 bg-indigo-100 text-indigo-800">Product Overview</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
                     <thead>
-                        <tr class="bg-primary-100 text-left">
-                            <th class="border px-4 py-2">Feature</th>
-                            {% for product in products %}
-                            <th class="border px-4 py-2">
-                                <div class="relative">
-                                    <!-- Remove Product Button -->
-                                    <form method="POST" class="absolute top-2 right-2">
-                                        {% csrf_token %}
-                                        <button type="submit" name="remove_product" value="{{ product.id }}"
-                                                class="text-red-500 text-lg font-semibold hover:text-red-700 transition-colors duration-300">&times;</button>
-                                    </form>
-                                    <!-- Product Image and Link -->
-                                    <img src="{{ product.image_url }}" alt="{{ product.product_name }}"
-                                         class="w-32 h-32 object-contain mx-auto mb-2 border border-gray-200 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                                    <a href="{{ product.product_link }}" target="_blank" class="text-primary-600 hover:text-primary-800 hover:underline text-center block transition-colors duration-300">
-                                        <p class="font-semibold">{{ product.product_name }}</p>
-                                    </a>
-                                </div>
-                            </th>
-                            {% endfor %}
+                        <tr class="bg-indigo-50">
+                            <th class="px-4 py-2 text-left text-indigo-700">Product</th>
+                            <th class="px-4 py-2 text-left text-indigo-700">Price</th>
+                            <th class="px-4 py-2 text-left text-indigo-700">Rating</th>
+                            <th class="px-4 py-2 text-left text-indigo-700">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Price Row -->
-                        <tr class="bg-gray-50 hover:bg-gray-100 transition-colors duration-300">
-                            <td class="border px-4 py-2 font-semibold">Price</td>
-                            {% for product in products %}
-                            <td class="border px-4 py-2 text-center font-bold text-primary-600">{{ product.product_price }}</td>
-                            {% endfor %}
-                        </tr>
-                        <!-- Rating Row -->
-                        <tr class="bg-white hover:bg-gray-100 transition-colors duration-300">
-                            <td class="border px-4 py-2 font-semibold">Rating</td>
-                            {% for product in products %}
-                            <td class="border px-4 py-2 text-center">
-                                <span class="text-yellow-500">★</span> {{ product.rating }}
-                                <br>
-                                <span class="text-sm text-gray-500">({{ product.number_of_ratings }})</span>
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        <!-- Specifications Row -->
-                        <tr class="bg-gray-50 hover:bg-gray-100 transition-colors duration-300">
-                            <td class="border px-4 py-2 font-semibold">Specifications</td>
-                            {% for product in products %}
-                            <td class="border px-4 py-2 text-sm">
-                                <div class="whitespace-pre-line text-gray-700">
-                                    {{ product.specifications }}
+                        {% for product in products %}
+                        <tr class="{% cycle 'bg-white' 'bg-gray-50' %}">
+                            <td class="border-b px-4 py-2">
+                                <div class="flex items-center">
+                                    <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="w-12 h-12 object-cover rounded-lg mr-4">
+                                    <span class="font-semibold">{{ product.product_name }}</span>
                                 </div>
                             </td>
-                            {% endfor %}
+                            <td class="border-b px-4 py-2 font-bold text-green-600">{{ product.product_price }}</td>
+                            <td class="border-b px-4 py-2">
+                                <div class="flex items-center">
+                                    <span class="text-yellow-400 text-xl mr-1">★</span>
+                                    <span class="font-bold">{{ product.rating }}</span>
+                                    <span class="text-sm text-gray-500 ml-1">({{ product.number_of_ratings }})</span>
+                                </div>
+                            </td>
+                            <td class="border-b px-4 py-2">
+                                <div class="flex space-x-2">
+                                    <a href="{{ product.product_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline">View</a>
+                                    <a href="{% url 'product_historical_data' product.id %}" 
+                                       class="text-blue-500 hover:text-blue-700">Historical Data</a>
+                                    <form method="POST" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" name="remove_product" value="{{ product.id }}"
+                                                class="text-red-500 hover:text-red-700">Remove</button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
-        
-            <!-- Comparison Actions -->
-            <div class="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                <a href="{% url 'home' %}" class="w-full sm:w-auto bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-colors duration-300 text-center">
-                    Back to Products
-                </a>
-                <form method="POST" class="w-full sm:w-auto">
-                    {% csrf_token %}
-                    <button type="submit" name="clear_comparison"
-                            class="w-full bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300">
-                        Clear Comparison
-                    </button>
-                </form>
-                <!-- New Analysis Button -->
-                <form method="GET" action="{% url 'analysis' %}" class="w-full sm:w-auto">
-                    <button type="submit" 
-                            class="w-full bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-300">
-                        Analysis
-                    </button>
-                </form>
+        </div>
+
+        <!-- Price and Rating Comparison Graphs -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 card-bg">
+            <h3 class="text-2xl font-bold p-4 bg-indigo-100 text-indigo-800">Price and Rating Comparison</h3>
+            <div class="flex flex-col md:flex-row">
+                <div class="w-full md:w-1/2 p-4">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="w-full md:w-1/2 p-4">
+                    <canvas id="ratingChart"></canvas>
+                </div>
             </div>
         </div>
+        
+        <!-- Specifications Comparison -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 card-bg">
+            <h3 class="text-2xl font-bold p-4 bg-indigo-100 text-indigo-800">Specifications Comparison</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-indigo-50">
+                            <th class="px-4 py-2 text-left text-indigo-700">Product</th>
+                            <th class="px-4 py-2 text-left text-indigo-700">Specifications</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="{% cycle 'bg-white' 'bg-gray-50' %}">
+                            <td class="border-b px-4 py-2 font-semibold">{{ product.product_name }}</td>
+                            <td class="border-b px-4 py-2">
+                                <div class="whitespace-pre-line text-gray-700 max-h-40 overflow-y-auto custom-scrollbar">
+                                    {{ product.specifications }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Comparison Actions -->
+        <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{% url 'home' %}" class="w-full sm:w-auto bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors duration-300 text-center font-semibold hover-scale">
+                Back to Products
+            </a>
+            <form method="POST" class="w-full sm:w-auto">
+                {% csrf_token %}
+                <button type="submit" name="clear_comparison"
+                        class="w-full bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors duration-300 font-semibold hover-scale">
+                    Clear Comparison
+                </button>
+            </form>
+            <form method="GET" action="{% url 'analysis' %}" class="w-full sm:w-auto">
+                <button type="submit" 
+                        class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-300 font-semibold hover-scale">
+                    Analysis
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    // Custom scrollbar styling
+    const style = document.createElement('style');
+    style.textContent = `
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    `;
+    document.head.append(style);
+
+    // Hover effect for buttons
+    document.querySelectorAll('.hover-scale').forEach(item => {
+        item.addEventListener('mouseover', () => {
+            item.style.transform = 'scale(1.05)';
+        });
+        item.addEventListener('mouseout', () => {
+            item.style.transform = 'scale(1)';
+        });
+    });
+
+    // Animate table rows on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Initialize charts
+        initializeCharts();
+    });
+
+    function initializeCharts() {
+        const products = [
+            {% for product in products %}
+            {
+                name: "{{ product.product_name }}",
+                price: {{ product.product_price|cut:"$" }},
+                rating: {{ product.rating }}
+            },
+            {% endfor %}
+        ];
+
+        const ctx1 = document.getElementById('priceChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: products.map(p => p.name),
+                datasets: [{
+                    label: 'Price',
+                    data: products.map(p => p.price),
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Price ($)'
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('ratingChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: products.map(p => p.name),
+                datasets: [{
+                    label: 'Rating',
+                    data: products.map(p => p.rating),
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5,
+                        title: {
+                            display: true,
+                            text: 'Rating'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    </script>
+</body>
+</html>
 {% endblock %}
-  
+

@@ -7,13 +7,6 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 
 class DarazScraper:
-    def __init__(self):
-        self.required_spec_keys = [
-            'Brand', 'SKU', 'Wireless Connectivity', 'Display Size', 'Operating System', 'CPU Cores',
-            'Ram Memory', 'Model No.', 'Touch Pad', 'Storage Capacity', 'Processor', 'Storage Type', 'Touch',
-            'Generation', "What's in the box"
-        ]
-    
     def setup_driver(self):
         """Initialize and return a Chrome WebDriver."""
         options = webdriver.ChromeOptions()
@@ -46,21 +39,15 @@ class DarazScraper:
                 product_data['rating'] = "No rating"
                 product_data['number_of_ratings'] = "0 ratings"
 
-            # Scrape product specifications
-            specs_div = driver.find_element(By.CLASS_NAME, "pdp-mod-specification")
-            specs_items = specs_div.find_elements(By.CLASS_NAME, "key-li")
-            specifications = {}
-            for item in specs_items:
-                key = item.find_element(By.CLASS_NAME, "key-title").text.strip()
-                value = item.find_element(By.CLASS_NAME, "key-value").text.strip()
-                if key in self.required_spec_keys:
-                    specifications[key] = value
-            
-            
-            # Convert specifications dictionary to string
-            if specifications:
-                product_data['specifications'] = "; ".join(f"{k}: {v}" for k, v in specifications.items())
-            else:
+            # Scrape specifications from the new specification section
+            try:
+                specs_div = driver.find_element(By.CLASS_NAME, "html-content.pdp-product-highlights")
+                specs_items = specs_div.find_elements(By.TAG_NAME, "li")
+                specifications = [item.text.strip() for item in specs_items]
+                
+                # Add specifications as a list or string
+                product_data['specifications'] = "; ".join(specifications) if specifications else "No specifications found"
+            except NoSuchElementException:
                 product_data['specifications'] = "No specifications found"
 
         except NoSuchElementException as e:
@@ -131,3 +118,4 @@ if __name__ == "__main__":
     results = scraper.search_products("laptop", limit=5)
     for result in results:
         print(f"Found product: {result.get('product_name')}")
+        print(f"Specifications: {result.get('specifications')}")
