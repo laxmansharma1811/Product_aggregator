@@ -1,16 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Product Comparison{% endblock %}
-
+        
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Comparison</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -24,110 +16,83 @@
         .hover-scale:hover {
             transform: scale(1.05);
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .card-bg {
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-        }
     </style>
-</head>
+
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <h2 class="text-4xl font-bold mb-8 text-center text-white gradient-bg py-4 rounded-lg shadow-lg">Product Comparison</h2>
+        <h2 class="text-4xl font-bold mb-8 text-center text-indigo-700">Product Comparison</h2>
         
-        <!-- Product Overview -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 card-bg">
-            <h3 class="text-2xl font-bold p-4 bg-indigo-100 text-indigo-800">Product Overview</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-indigo-50">
-                            <th class="px-4 py-2 text-left text-indigo-700">Product</th>
-                            <th class="px-4 py-2 text-left text-indigo-700">Price</th>
-                            <th class="px-4 py-2 text-left text-indigo-700">Rating</th>
-                            <th class="px-4 py-2 text-left text-indigo-700">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <!-- Product Comparison Table -->
+        <div class="overflow-x-auto shadow-xl rounded-lg bg-white mb-8">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-indigo-100 text-left">
+                        <th class="border-b px-4 py-2 text-indigo-800 w-1/4">Feature</th>
                         {% for product in products %}
-                        <tr class="{% cycle 'bg-white' 'bg-gray-50' %}">
-                            <td class="border-b px-4 py-2">
-                                <div class="flex items-center">
-                                    <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="w-12 h-12 object-cover rounded-lg mr-4">
-                                    <span class="font-semibold">{{ product.product_name }}</span>
+                        <th class="border-b px-4 py-4 w-1/{{ products|length|add:1 }}">
+                            <div class="relative">
+                                <!-- Remove Product Button -->
+                                <form method="POST" class="absolute top-0 right-0">
+                                    {% csrf_token %}
+                                    <button type="submit" name="remove_product" value="{{ product.id }}"
+                                            class="text-red-500 text-lg font-semibold hover:text-red-700 transition-colors duration-300">&times;</button>
+                                </form>
+                                <!-- Product Image and Link -->
+                                <div class="hover-scale">
+                                    <img src="{{ product.image_url }}" alt="{{ product.product_name }}"
+                                         class="w-32 h-32 object-contain mx-auto mb-2 border border-gray-200 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                                    <a href="{{ product.product_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline text-center block transition-colors duration-300">
+                                        <p class="font-semibold text-sm">{{ product.product_name }}</p>
+                                    </a>
                                 </div>
-                            </td>
-                            <td class="border-b px-4 py-2 font-bold text-green-600">{{ product.product_price }}</td>
-                            <td class="border-b px-4 py-2">
-                                <div class="flex items-center">
-                                    <span class="text-yellow-400 text-xl mr-1">★</span>
-                                    <span class="font-bold">{{ product.rating }}</span>
-                                    <span class="text-sm text-gray-500 ml-1">({{ product.number_of_ratings }})</span>
-                                </div>
-                            </td>
-                            <td class="border-b px-4 py-2">
-                                <div class="flex space-x-2">
-                                    <a href="{{ product.product_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline">View</a>
-                                    <a href="{% url 'product_historical_data' product.id %}" 
-                                       class="text-blue-500 hover:text-blue-700">Historical Data</a>
-                                    <form method="POST" class="inline">
-                                        {% csrf_token %}
-                                        <button type="submit" name="remove_product" value="{{ product.id }}"
-                                                class="text-red-500 hover:text-red-700">Remove</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+                                <!-- Historical Data Button -->
+                                <a href="{% url 'product_historical_data' product.id %}" 
+                                class="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition-colors duration-300 block text-center mt-2 hover-scale text-xs">
+                                View Historical Data
+                                </a>
+                            </div>
+                        </th>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Price and Rating Comparison Graphs -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 card-bg">
-            <h3 class="text-2xl font-bold p-4 bg-indigo-100 text-indigo-800">Price and Rating Comparison</h3>
-            <div class="flex flex-col md:flex-row">
-                <div class="w-full md:w-1/2 p-4">
-                    <canvas id="priceChart"></canvas>
-                </div>
-                <div class="w-full md:w-1/2 p-4">
-                    <canvas id="ratingChart"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Specifications Comparison -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 card-bg">
-            <h3 class="text-2xl font-bold p-4 bg-indigo-100 text-indigo-800">Specifications Comparison</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-indigo-50">
-                            <th class="px-4 py-2 text-left text-indigo-700">Product</th>
-                            <th class="px-4 py-2 text-left text-indigo-700">Specifications</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Price Row -->
+                    <tr class="bg-white hover:bg-gray-50 transition-colors duration-300">
+                        <td class="border-b px-4 py-3 font-semibold text-gray-700">Price</td>
                         {% for product in products %}
-                        <tr class="{% cycle 'bg-white' 'bg-gray-50' %}">
-                            <td class="border-b px-4 py-2 font-semibold">{{ product.product_name }}</td>
-                            <td class="border-b px-4 py-2">
-                                <div class="whitespace-pre-line text-gray-700 max-h-40 overflow-y-auto custom-scrollbar">
-                                    {{ product.specifications }}
-                                </div>
-                            </td>
-                        </tr>
+                        <td class="border-b px-4 py-3 text-center font-bold text-green-600 text-lg">{{ product.product_price }}</td>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    </tr>
+                    <!-- Rating Row -->
+                    <tr class="bg-gray-50 hover:bg-gray-100 transition-colors duration-300">
+                        <td class="border-b px-4 py-3 font-semibold text-gray-700">Rating</td>
+                        {% for product in products %}
+                        <td class="border-b px-4 py-3 text-center">
+                            <div class="flex items-center justify-center">
+                                <span class="text-yellow-400 text-xl mr-1">★</span>
+                                <span class="font-bold text-base">{{ product.rating }}</span>
+                            </div>
+                            <span class="text-xs text-gray-500">({{ product.number_of_ratings }} ratings)</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <!-- Specifications Row -->
+                    <tr class="bg-white hover:bg-gray-50 transition-colors duration-300">
+                        <td class="border-b px-4 py-3 font-semibold text-gray-700">Specifications</td>
+                        {% for product in products %}
+                        <td class="border-b px-4 py-3 text-xs">
+                            <div class="whitespace-pre-line text-gray-700 max-h-40 overflow-y-auto custom-scrollbar">
+                                {{ product.specifications }}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
         </div>
         
         <!-- Comparison Actions -->
-        <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <div class="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <a href="{% url 'home' %}" class="w-full sm:w-auto bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors duration-300 text-center font-semibold hover-scale">
                 Back to Products
             </a>
@@ -138,6 +103,7 @@
                     Clear Comparison
                 </button>
             </form>
+            <!-- New Analysis Button -->
             <form method="GET" action="{% url 'analysis' %}" class="w-full sm:w-auto">
                 <button type="submit" 
                         class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-300 font-semibold hover-scale">
@@ -167,7 +133,7 @@
     `;
     document.head.append(style);
 
-    // Hover effect for buttons
+    // Hover effect for product images
     document.querySelectorAll('.hover-scale').forEach(item => {
         item.addEventListener('mouseover', () => {
             item.style.transform = 'scale(1.05)';
@@ -176,90 +142,10 @@
             item.style.transform = 'scale(1)';
         });
     });
-
-    // Animate table rows on page load
-    document.addEventListener('DOMContentLoaded', () => {
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach((row, index) => {
-            row.style.opacity = '0';
-            row.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                row.style.opacity = '1';
-                row.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-
-        // Initialize charts
-        initializeCharts();
-    });
-
-    function initializeCharts() {
-        const products = [
-            {% for product in products %}
-            {
-                name: "{{ product.product_name }}",
-                price: {{ product.product_price|cut:"$" }},
-                rating: {{ product.rating }}
-            },
-            {% endfor %}
-        ];
-
-        const ctx1 = document.getElementById('priceChart').getContext('2d');
-        new Chart(ctx1, {
-            type: 'line',
-            data: {
-                labels: products.map(p => p.name),
-                datasets: [{
-                    label: 'Price',
-                    data: products.map(p => p.price),
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Price ($)'
-                        }
-                    }
-                }
-            }
-        });
-
-        const ctx2 = document.getElementById('ratingChart').getContext('2d');
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: products.map(p => p.name),
-                datasets: [{
-                    label: 'Rating',
-                    data: products.map(p => p.rating),
-                    borderColor: 'rgb(255, 99, 132)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 5,
-                        title: {
-                            display: true,
-                            text: 'Rating'
-                        }
-                    }
-                }
-            }
-        });
-    }
     </script>
+    
 </body>
-</html>
+
+
 {% endblock %}
 

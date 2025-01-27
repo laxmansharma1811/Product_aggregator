@@ -36,6 +36,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from .models import Product
 import numpy as np
+from django.contrib.auth.views import PasswordResetView
 
 # Create your views here.
 
@@ -525,7 +526,6 @@ def product_historical_data(request, product_id):
 
 
 
-from django.contrib.auth.views import PasswordResetView
 class CustomPasswordResetView(PasswordResetView):
     email_template_name = 'registration/password_reset_email.html'
 
