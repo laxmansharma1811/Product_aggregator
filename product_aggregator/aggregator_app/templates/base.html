@@ -58,48 +58,66 @@
 </head>
 <body class="bg-gray-100 font-body flex flex-col min-h-screen">
     <nav class="bg-white shadow-lg sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'home' %}" class="text-xl font-bold text-primary-600">Product Aggregator</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="{% url 'home' %}" class="text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md text-sm font-medium">Home</a>
-                    <a href="{% url 'product_search' %}" class="text-yellow-500 hover:text-yellow-600 px-3 py-2 rounded-md text-sm font-medium">Live Daraz Scraping</a>
-                    <a href="{% url 'search_products' %}" class="text-blue-500 hover:text-yellow-600 px-3 py-2 rounded-md text-sm font-medium">Live Hukut Scraping</a>
-                    {% if user.is_authenticated %}
-                        <div class="flex items-center space-x-2">
-                            <span class="text-gray-600">Welcome, {{ user.username }}</span>
-                            <div class="relative">
-                                <button id="profile-menu-button" class="bg-primary-500 text-white rounded-full h-8 w-8 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                    {{ user.username|first|upper }}
-                                </button>
-                                <div id="profile-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 hidden">
-                                    <a href="{% url 'profile-view' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
-                                    <a href="{% url 'change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-                                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
-                                </div>
-                            </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="{% url 'home' %}" class="text-xl font-bold text-primary-600">Product Aggregator</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="{% url 'home' %}" class="text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                <a href="{% url 'product_search' %}" class="text-yellow-500 hover:text-yellow-600 px-3 py-2 rounded-md text-sm font-medium">Live Daraz Scraping</a>
+                <a href="{% url 'search_products' %}" class="text-blue-500 hover:text-yellow-600 px-3 py-2 rounded-md text-sm font-medium">Live Hukut Scraping</a>
+                {% if user.is_authenticated %}
+                    <div class="relative">
+                        <button id="profile-menu-button" class="bg-primary-500 text-white rounded-full h-8 w-8 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            {{ user.username|first|upper }}
+                        </button>
+                        <div id="profile-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 hidden">
+                            <a href="{% url 'profile-view' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+                            <a href="{% url 'change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
                         </div>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="text-primary-500 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                        <a href="{% url 'register' %}" class="bg-primary-500 text-white hover:bg-primary-600 px-3 py-2 rounded-md text-sm font-medium">Register</a>
-                    {% endif %}
-                </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-primary-500 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                    <a href="{% url 'register' %}" class="bg-primary-500 text-white hover:bg-primary-600 px-3 py-2 rounded-md text-sm font-medium">Register</a>
+                {% endif %}
+            </div>
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
         </div>
-    </nav>
+    </div>
+    <div id="mobile-menu" class="md:hidden hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="{% url 'home' %}" class="text-primary-600 hover:text-primary-800 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+            <a href="{% url 'product_search' %}" class="text-yellow-500 hover:text-yellow-600 block px-3 py-2 rounded-md text-base font-medium">Live Daraz Scraping</a>
+            <a href="{% url 'search_products' %}" class="text-blue-500 hover:text-yellow-600 block px-3 py-2 rounded-md text-base font-medium">Live Hukut Scraping</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile-view' %}" class="text-gray-600 hover:text-gray-800 block px-3 py-2 rounded-md text-base font-medium">Your Profile</a>
+                <a href="{% url 'change_password' %}" class="text-gray-600 hover:text-gray-800 block px-3 py-2 rounded-md text-base font-medium">Settings</a>
+                <a href="{% url 'logout' %}" class="text-red-600 hover:text-red-800 block px-3 py-2 rounded-md text-base font-medium">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-primary-500 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium">Login</a>
+                <a href="{% url 'register' %}" class="bg-primary-500 text-white hover:bg-primary-600 block px-3 py-2 rounded-md text-base font-medium">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
 
     <main class="flex-grow">
         {% block content %}
         {% endblock content %}
     </main>
 
-
-
     <footer class="bg-white shadow-lg mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div class="col-span-1 md:col-span-2">
                     <h2 class="text-2xl font-bold text-primary-600 mb-4">Price Comparison</h2>
                     <p class="text-gray-600 mb-4">Find the best deals across multiple platforms. Compare prices, read reviews, and make informed decisions.</p>
@@ -157,8 +175,6 @@
         </div>
     </footer>
 
-
-
     <script>
         // Toggle profile menu
         const profileButton = document.getElementById('profile-menu-button');
@@ -177,7 +193,19 @@
                 }
             });
         }
+
+        // Toggle mobile menu
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', mobileMenu.classList.contains('hidden') ? 'false' : 'true');
+            });
+        }
     </script>
 
     </body>
 </html>
+

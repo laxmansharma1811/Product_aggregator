@@ -1,29 +1,37 @@
 {% extends 'base.html' %}
 {% block title %}Product Comparison{% endblock %}
-        
-{% block content %}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .custom-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .hover-scale {
-            transition: transform 0.3s ease-in-out;
-        }
-        .hover-scale:hover {
-            transform: scale(1.05);
-        }
-    </style>
 
-<body class="bg-gray-100 min-h-screen">
+{% block content %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+    .custom-shadow {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .hover-scale {
+        transition: transform 0.3s ease-in-out;
+    }
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    @media (max-width: 640px) {
+        .table-container table {
+            min-width: 640px;
+        }
+    }
+</style>
+
+<div class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <h2 class="text-4xl font-bold mb-8 text-center text-indigo-700">Product Comparison</h2>
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center text-indigo-700">Product Comparison</h2>
         
         <!-- Product Comparison Table -->
-        <div class="overflow-x-auto shadow-xl rounded-lg bg-white mb-8">
+        <div class="table-container shadow-xl rounded-lg bg-white mb-8 overflow-hidden">
             <table class="w-full table-auto">
                 <thead>
                     <tr class="bg-indigo-100 text-left">
@@ -40,9 +48,9 @@
                                 <!-- Product Image and Link -->
                                 <div class="hover-scale">
                                     <img src="{{ product.image_url }}" alt="{{ product.product_name }}"
-                                         class="w-32 h-32 object-contain mx-auto mb-2 border border-gray-200 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                                         class="w-24 h-24 md:w-32 md:h-32 object-contain mx-auto mb-2 border border-gray-200 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                                     <a href="{{ product.product_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline text-center block transition-colors duration-300">
-                                        <p class="font-semibold text-sm">{{ product.product_name }}</p>
+                                        <p class="font-semibold text-xs md:text-sm">{{ product.product_name }}</p>
                                     </a>
                                 </div>
                                 <!-- Historical Data Button -->
@@ -60,7 +68,7 @@
                     <tr class="bg-white hover:bg-gray-50 transition-colors duration-300">
                         <td class="border-b px-4 py-3 font-semibold text-gray-700">Price</td>
                         {% for product in products %}
-                        <td class="border-b px-4 py-3 text-center font-bold text-green-600 text-lg">{{ product.product_price }}</td>
+                        <td class="border-b px-4 py-3 text-center font-bold text-green-600 text-base md:text-lg">{{ product.product_price }}</td>
                         {% endfor %}
                     </tr>
                     <!-- Rating Row -->
@@ -69,8 +77,8 @@
                         {% for product in products %}
                         <td class="border-b px-4 py-3 text-center">
                             <div class="flex items-center justify-center">
-                                <span class="text-yellow-400 text-xl mr-1">★</span>
-                                <span class="font-bold text-base">{{ product.rating }}</span>
+                                <span class="text-yellow-400 text-lg md:text-xl mr-1">★</span>
+                                <span class="font-bold text-sm md:text-base">{{ product.rating }}</span>
                             </div>
                             <span class="text-xs text-gray-500">({{ product.number_of_ratings }} ratings)</span>
                         </td>
@@ -81,7 +89,7 @@
                         <td class="border-b px-4 py-3 font-semibold text-gray-700">Specifications</td>
                         {% for product in products %}
                         <td class="border-b px-4 py-3 text-xs">
-                            <div class="whitespace-pre-line text-gray-700 max-h-40 overflow-y-auto custom-scrollbar">
+                            <div class="whitespace-pre-line text-gray-700 max-h-32 md:max-h-40 overflow-y-auto custom-scrollbar">
                                 {{ product.specifications }}
                             </div>
                         </td>
@@ -93,59 +101,57 @@
         
         <!-- Comparison Actions -->
         <div class="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a href="{% url 'home' %}" class="w-full sm:w-auto bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors duration-300 text-center font-semibold hover-scale">
+            <a href="{% url 'home' %}" class="w-full sm:w-auto bg-indigo-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-indigo-600 transition-colors duration-300 text-center font-semibold hover-scale text-sm md:text-base">
                 Back to Products
             </a>
             <form method="POST" class="w-full sm:w-auto">
                 {% csrf_token %}
                 <button type="submit" name="clear_comparison"
-                        class="w-full bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors duration-300 font-semibold hover-scale">
+                        class="w-full bg-red-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition-colors duration-300 font-semibold hover-scale text-sm md:text-base">
                     Clear Comparison
                 </button>
             </form>
             <!-- New Analysis Button -->
             <form method="GET" action="{% url 'analysis' %}" class="w-full sm:w-auto">
                 <button type="submit" 
-                        class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-300 font-semibold hover-scale">
+                        class="w-full bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-green-600 transition-colors duration-300 font-semibold hover-scale text-sm md:text-base">
                     Analysis
                 </button>
             </form>
         </div>
     </div>
+</div>
 
-    <script>
-    // Custom scrollbar styling
-    const style = document.createElement('style');
-    style.textContent = `
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    `;
-    document.head.append(style);
+<script>
+// Custom scrollbar styling
+const style = document.createElement('style');
+style.textContent = `
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+`;
+document.head.append(style);
 
-    // Hover effect for product images
-    document.querySelectorAll('.hover-scale').forEach(item => {
-        item.addEventListener('mouseover', () => {
-            item.style.transform = 'scale(1.05)';
-        });
-        item.addEventListener('mouseout', () => {
-            item.style.transform = 'scale(1)';
-        });
+// Hover effect for product images
+document.querySelectorAll('.hover-scale').forEach(item => {
+    item.addEventListener('mouseover', () => {
+        item.style.transform = 'scale(1.05)';
     });
-    </script>
-    
-</body>
-
+    item.addEventListener('mouseout', () => {
+        item.style.transform = 'scale(1)';
+    });
+});
+</script>
 
 {% endblock %}
 
