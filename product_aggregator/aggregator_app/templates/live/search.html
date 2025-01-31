@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Product Search{% endblock %}
+{% block title %}Daraz Search{% endblock %}
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -18,6 +18,14 @@
             class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition"
         >
             Search
+        </button>
+        <!-- Cancel Button -->
+        <button
+            id="cancelButton"
+            onclick="cancelSearch()"
+            class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition hidden"
+        >
+            Cancel
         </button>
     </div>
 
@@ -42,6 +50,8 @@
 </div>
 
 <script>
+    let abortController = null; // Global variable to store the AbortController instance
+
     function searchProducts() {
         const query = $('#searchInput').val().trim();
         if (!query) {
@@ -49,25 +59,48 @@
             return;
         }
 
+        // Reset UI
         $('#errorMessage').addClass('hidden');
         $('.loading').removeClass('hidden');
         $('#productsContainer').empty();
+        $('#cancelButton').removeClass('hidden'); // Show Cancel button
 
-        $.ajax({
-            url: '{% url "product_search" %}',
-            data: { q: query },
+        // Create a new AbortController for the current request
+        abortController = new AbortController();
+
+        // Perform the AJAX request
+        fetch('{% url "product_search" %}?q=' + encodeURIComponent(query), {
             method: 'GET',
-            success: function (response) {
-                $('.loading').addClass('hidden');
-                displayProducts(response.products);
+            signal: abortController.signal, // Attach the AbortController signal
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest', // Ensure Django recognizes it as an AJAX request
             },
-            error: function () {
-                $('.loading').addClass('hidden');
+        })
+        .then(response => response.json())
+        .then(data => {
+            $('.loading').addClass('hidden');
+            $('#cancelButton').addClass('hidden'); // Hide Cancel button
+            displayProducts(data.products); // Display the products
+        })
+        .catch(error => {
+            $('.loading').addClass('hidden');
+            $('#cancelButton').addClass('hidden'); // Hide Cancel button
+
+            if (error.name === 'AbortError') {
+                $('#errorMessage').text('Search cancelled by user.').removeClass('hidden');
+            } else {
                 $('#errorMessage')
                     .text('An error occurred while searching. Please try again.')
                     .removeClass('hidden');
-            },
+            }
         });
+    }
+
+    function cancelSearch() {
+        if (abortController) {
+            abortController.abort(); // Abort the ongoing request
+            abortController = null; // Reset the AbortController
+        }
     }
 
     function displayProducts(products) {
