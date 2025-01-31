@@ -163,16 +163,16 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [{% for product in products %}'{{ product.name }}',{% endfor %}],
+                    labels: [{% for product in products %}'{{ product.product_name }}',{% endfor %}],
                     datasets: [{
                         label: 'Price (Rs.)',
-                        data: [{% for product in products %}{{ product.price }},{% endfor %}],
+                        data: [{% for price in product_prices %}{{ price }},{% endfor %}],  // Use cleaned prices
                         borderColor: 'rgba(99, 102, 241, 1)',
                         backgroundColor: 'rgba(99, 102, 241, 0.2)',
                         yAxisID: 'y-axis-1',
                     }, {
                         label: 'Rating',
-                        data: [{% for product in products %}{{ product.rating }},{% endfor %}],
+                        data: [{% for rating in product_ratings %}{{ rating }},{% endfor %}],  // Use ratings
                         borderColor: 'rgba(59, 130, 246, 1)',
                         backgroundColor: 'rgba(59, 130, 246, 0.2)',
                         yAxisID: 'y-axis-2',

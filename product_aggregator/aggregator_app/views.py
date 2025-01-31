@@ -265,6 +265,8 @@ def analysis(request):
         'min_rating': min_rating,
         'correlation': correlation,
         'best_value_product': best_value_product,
+        'product_prices': product_prices,  # Add this line
+    'product_ratings': product_ratings
     }
 
     return render(request, 'comparison/analysis.html', context)
