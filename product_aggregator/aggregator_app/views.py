@@ -201,7 +201,7 @@ def analysis(request):
     product_names = [p.product_name for p in products]
     product_prices = [clean_price(p.product_price) for p in products]
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(25, 10))
     plt.bar(product_names, product_prices, color='skyblue')
     plt.xlabel("Products")
     plt.ylabel("Price (Rs.)")
@@ -265,8 +265,8 @@ def analysis(request):
         'min_rating': min_rating,
         'correlation': correlation,
         'best_value_product': best_value_product,
-        'product_prices': product_prices,  # Add this line
-    'product_ratings': product_ratings
+        'product_prices': product_prices,  
+        'product_ratings': product_ratings
     }
 
     return render(request, 'comparison/analysis.html', context)
