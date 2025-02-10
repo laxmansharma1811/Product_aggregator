@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-q%gyk$=g0z*)mz$90mcsw^jno+_osmg7eyb8b-e7eeksd6-@*d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -156,3 +156,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.trycloudflare.com/',
+]

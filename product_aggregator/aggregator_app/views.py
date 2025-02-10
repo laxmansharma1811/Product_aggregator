@@ -37,6 +37,8 @@ import matplotlib.pyplot as plt
 from .models import Product
 import numpy as np
 from django.contrib.auth.views import PasswordResetView
+from django.utils.decorators import method_decorator
+from collections import Counter
 
 # Create your views here.
 
@@ -197,11 +199,24 @@ def analysis(request):
             price_differences.append({'products': f"{products[i].product_name} vs {products[j].product_name}", 'difference': price_diff})
             rating_differences.append({'products': f"{products[i].product_name} vs {products[j].product_name}", 'difference': rating_diff})
 
-    # Generate a price comparison bar chart
-    product_names = [p.product_name for p in products]
+     # Handle product name duplication issue
+    first_names = [p.product_name.split()[0] for p in products]
+    name_counts = Counter(first_names)
+    unique_names = []
+    name_tracker = {}
+
+    for name in first_names:
+        if name_counts[name] > 1:
+            count = name_tracker.get(name, 0) + 1
+            name_tracker[name] = count
+            unique_names.append(f"{name} {count}")  # Append index to duplicates
+        else:
+            unique_names.append(name)
+
+    product_names = unique_names  # Use the modified names
     product_prices = [clean_price(p.product_price) for p in products]
 
-    plt.figure(figsize=(25, 10))
+    plt.figure(figsize=(8, 6))
     plt.bar(product_names, product_prices, color='skyblue')
     plt.xlabel("Products")
     plt.ylabel("Price (Rs.)")
@@ -275,7 +290,7 @@ def analysis(request):
 
 
 
-
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class ProductSearchView(TemplateView):
     template_name = 'live/search.html'
 
