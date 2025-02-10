@@ -94,18 +94,29 @@
             </div>
         </div>
 
+        <!-- Rating Chart -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 p-6">
+    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Product Rating Comparison</h3>
+    <img src="{{ rating_chart_url }}" alt="Rating Chart" class="mx-auto w-100 h-auto rounded-lg border border-gray-200">
+</div>
+
+
         <!-- Price to Rating Ratio -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 transform hover:scale-105 transition duration-300">
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Price to Rating Ratio</h3>
-                <ul class="space-y-2">
-                    {% for ratio in price_rating_ratios %}
-                        <li class="bg-indigo-50 p-3 rounded-lg flex justify-between items-center">
-                            <span class="font-medium text-indigo-800">{{ ratio.product }}</span>
-                            <span class="text-indigo-600">Rs. {{ ratio.ratio|floatformat:2 }} per rating point</span>
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% if price_rating_ratios %}
+                    <ul class="space-y-2">
+                        {% for ratio in price_rating_ratios %}
+                            <li class="bg-indigo-50 p-3 rounded-lg flex justify-between items-center">
+                                <span class="font-medium text-indigo-800">{{ ratio.product }}</span>
+                                <span class="text-indigo-600">Rs. {{ ratio.ratio|floatformat:2 }} per rating point</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-gray-500">No valid ratings available.</p>
+                {% endif %}
             </div>
         </div>
 

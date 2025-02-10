@@ -281,7 +281,8 @@ def analysis(request):
         'correlation': correlation,
         'best_value_product': best_value_product,
         'product_prices': product_prices,  
-        'product_ratings': product_ratings
+        'product_ratings': product_ratings,
+        'price_rating_ratios': price_rating_ratios,
     }
 
     return render(request, 'comparison/analysis.html', context)
