@@ -21,7 +21,7 @@
       },
       {
         "src": "/(.)",
-        "dest": "social_media/wsgi.py"
+        "dest": "product_aggregator/wsgi.py"
       }
     ]
   }
