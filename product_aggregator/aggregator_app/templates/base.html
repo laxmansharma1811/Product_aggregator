@@ -70,7 +70,12 @@
                 {% if user.is_authenticated %}
                     <div class="relative">
                         <button id="profile-menu-button" class="bg-primary-500 text-white rounded-full h-8 w-8 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                            {{ user.username|first|upper }}
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-full h-8 w-8 object-cover">
+                            {% else %}
+                                <!-- Default placeholder or icon -->
+                                <span>{{ user.username|first|upper }}</span>
+                            {% endif %}
                         </button>
                         <div id="profile-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 hidden">
                             <a href="{% url 'profile-view' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
