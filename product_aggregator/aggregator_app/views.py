@@ -43,7 +43,28 @@ from collections import Counter
 # Create your views here.
 
 def clean_price(price_str):
-    return float(price_str.replace('Rs.', '').replace('₹', '').replace(',', '').strip())
+    # Handle case where price might be None
+    if not price_str:
+        return 0.0
+    
+    # Convert price_str to string if it's not already
+    price_str = str(price_str)
+    
+    # Remove all currency symbols and formatting
+    price_str = price_str.replace('Rs.', '')
+    price_str = price_str.replace('₹', '')
+    price_str = price_str.replace('रु', '')  # Add Nepali rupee symbol
+    price_str = price_str.replace('र', '')   # Sometimes might appear as this
+    price_str = price_str.replace(',', '')
+    price_str = price_str.replace(' ', '')
+    price_str = price_str.strip()
+    
+    try:
+        return float(price_str)
+    except ValueError:
+        # If conversion still fails, log the problematic string and return 0
+        print(f"Could not convert price: {price_str}")
+        return 0.0
 
 @login_required(login_url='login')
 def home(request):
