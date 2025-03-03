@@ -32,14 +32,13 @@ import io
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from .models import Product
 import numpy as np
 from django.contrib.auth.views import PasswordResetView
 from django.utils.decorators import method_decorator
 from collections import Counter
-
+matplotlib.use('Agg')
 # Create your views here.
 
 def clean_price(price_str):
@@ -498,7 +497,7 @@ def logout_view(request):
 
 
 
-@login_required
+@login_required(login_url='login')
 def profile_view(request):
     # Get the user's profile, or create it if it doesn't exist
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
@@ -581,8 +580,7 @@ class CustomPasswordResetView(PasswordResetView):
 
 
 
-
-@login_required
+@login_required(login_url='login')
 @require_http_methods(["GET", "POST"])
 def change_password(request):
     if request.method == 'GET':

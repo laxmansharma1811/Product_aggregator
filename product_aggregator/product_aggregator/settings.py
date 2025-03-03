@@ -92,24 +92,18 @@ EMAIL_HOST_PASSWORD = 'Add your password'
 
 
 
-# DATABASES = {
-# 'default': {
-# 'ENGINE': 'django.db.backends.postgresql',
-# 'NAME': 'product_aggregator',
-# 'USER': 'postgres',
-# 'PASSWORD': 'admin',
-# 'HOST': 'localhost',
-# 'PORT': '5432', # default PostgreSQL port
-# }
-# }
-
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "mydatabase",
-    }
+'default': {
+'ENGINE': 'django.db.backends.postgresql',
+'NAME': 'product_aggregator',
+'USER': 'postgres',
+'PASSWORD': 'admin',
+'HOST': 'localhost',
+'PORT': '5432', # default PostgreSQL port
 }
+}
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
