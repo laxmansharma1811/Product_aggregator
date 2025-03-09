@@ -27,12 +27,8 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden">
-    <!-- Error Message Section -->
-    {% if messages %}
-    <div id="error-message" class="absolute top-0 left-0 w-full bg-red-600 text-white py-2 text-center">
-        {{ messages }}
-    </div>
-    {% endif %}
+   
+
 
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div class="absolute top-1/4 left-1/4 w-20 h-20 bg-yellow-300 rounded-full opacity-50 float"></div>
@@ -41,6 +37,14 @@
     </div>
     
     <div class="w-full max-w-md p-8 m-4 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-lg shadow-2xl pulse">
+         <!-- Error Message Section -->
+    {% if messages %}
+    <div id="error-message" class="absolute top-0 left-0 w-full text-white py-2 text-center">
+        {% for message in messages %}
+            <div class="bg-red-600 px-4 py-2 rounded-lg mb-2">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
         <h2 class="mb-6 text-4xl font-bold text-center text-white">Register</h2>
         <form method="post" class="space-y-6" onsubmit="return validatePassword()">
             {% csrf_token %}

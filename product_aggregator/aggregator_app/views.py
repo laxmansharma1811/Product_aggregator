@@ -457,6 +457,8 @@ def register(request):
          # Create user profile
         user_profile = UserProfile.objects.create(user=user, first_name=first_name, last_name=last_name)
         login(request, user)
+
+        messages.success(request, "Registration successful! You can now log in.")
         return redirect('login')
 
     return render(request, 'authentication/register.html')
